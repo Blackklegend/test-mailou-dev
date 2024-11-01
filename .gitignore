@@ -1,0 +1,10 @@
+#ide files
+.vscode
+
+#node files
+node_modules
+.env
+
+#build files
+dist
+build

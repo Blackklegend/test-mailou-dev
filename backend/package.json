@@ -1,0 +1,25 @@
+{
+  "name": "Test-Vitor-Monteiro",
+  "version": "1.0.0",
+  "description": "Teste mailou dev",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc --build",
+    "start": "export NODE_ENV='production' && node lib/index.js",
+    "start_windows": "SET NODE_ENV=production&& node lib/index.js",
+    "dev": "SET NODE_ENV=staging&& tsx watch index.ts",
+    "dev_unix": "export NODE_ENV='staging' && tsx src/index.ts"
+  },
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "fastify": "^5.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.6",
+    "nodemon": "^3.1.7"
+  },
+  "type": "module"
+}
