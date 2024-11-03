@@ -1,23 +1,14 @@
-import Fastify from 'fastify'
-import { connectDb } from './db'
-import pg from 'pg';
-import { configDotenv } from 'dotenv';
-
+import { configDotenv } from 'dotenv'
+import Fastify, { FastifyReply, FastifyRequest } from 'fastify'
 
 configDotenv({path: "./.env"})
-
-const client = new pg.Client({
-	connectionString: process.env.DATABASE_URL
-});
 
 async function startServer() {
 	const app = Fastify({ logger: true })
 
-	app.get('/', (req, res) => {
+	app.get('/', (req: FastifyRequest, res: FastifyReply) => {
 			res.send("Hello world")
 	})
-
-	await connectDb(client)
 
 	app.listen({port: 3000}, (err, address) => {
 		if (err) {
