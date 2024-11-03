@@ -1,10 +1,10 @@
 import pg from 'pg'
-import { ProductRepository } from '../repositories/productRepository';
+import { ProductRepository } from '../repositories/productRepository'
 
 const pool = new pg.Pool({
-	connectionString: process.env.DATABASE_URL
-});
+  connectionString: process.env.DATABASE_URL
+})
 
 export function loadProductRepository() {
-  return new ProductRepository(pool);
+  return new ProductRepository(pool)
 }

@@ -1,23 +1,23 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance } from 'fastify'
 import * as db from "../db"
-import { ProductController } from '../controller/productController';
-import { ProductServices } from '../services/productServices';
+import { ProductController } from '../controller/productController'
+import { ProductServices } from '../services/productServices'
 
 export async function productRouter(fastify: FastifyInstance) {
   const productService = new ProductServices(db.loadProductRepository())
-  const productController = new ProductController(productService);
+  const productController = new ProductController(productService)
 
-  fastify.get('/products', productController.index.bind(productController));
+  fastify.get('/products', productController.index.bind(productController))
 
-  // Get a single product by ID
-  // fastify.get('/products/:id', productController.getProductById);
+  fastify.get('/products/:id', productController.getById.bind(productController))
 
-  
-  fastify.post('/products', productController.create.bind(productController));
+  fastify.get('/products/search', productController.getByName.bind(productController))
 
-  // // Update an existing product
-  // fastify.put('/products/:id', productController.updateProduct);
+  fastify.get('/products/category/:category', productController.getByCategory.bind(productController))
 
-  // // Delete a product
-  // fastify.delete('/products/:id', productController.deleteProduct);
+  fastify.put('/products', productController.create.bind(productController))
+
+  fastify.put('/products/:id', productController.update.bind(productController))
+
+  fastify.delete('/products/:id', productController.delete.bind(productController))
 }

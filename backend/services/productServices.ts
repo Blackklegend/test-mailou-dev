@@ -1,21 +1,53 @@
-import { IProduct } from '../model/product';
-import { ProductRepository } from '../repositories/productRepository';
+import { CategoryCode } from '../constants/categoryTypes'
+import { IProduct } from '../model/product'
+import { ProductRepository } from '../repositories/productRepository'
+import { validateCategory } from '../utils/categoryUtils'
 
 export class ProductServices {
   constructor(private productRepository: ProductRepository) { }
 
+  private validateCategory(category: string): CategoryCode {
+    const validCategory = validateCategory(category)
+    if (!validCategory) {
+      throw new Error("Invalid category")
+    }
+    return validCategory
+  }
+
+  private async validateProductName(name: string, category: CategoryCode): Promise<void> {
+    const existingProduct = await this.productRepository.findByNameAndCategory(name, category)
+    if (existingProduct) {
+      throw new Error("Nome já cadastrado na categoria, impossível alterar")
+    }
+  }
+
+  private validateProductPrice(price: number): void {
+    if (isNaN(price)) {
+      throw new Error("Preço deve ser numérico")
+    }
+  }
+
   private async validateProductData(data: Partial<IProduct>): Promise<string[]> {
-    const errors: string[] = [];
+    const errors: string[] = []
 
     if (!data.price) {
       errors.push("Preço não informado, item obrigatório")
+      try {
+        this.validateProductPrice(data.price!)
+      } catch (error) {
+        errors.push(error instanceof Error ? error.message : String(error))
+      }
     }
 
     if (!data.name) {
       errors.push("Nome não preenchido, item obrigatório")
     }
+
     if (!data.category) {
       errors.push("Categoria não preenchida, item obrigatório")
+    }
+    if (data.category && !this.validateCategory(data.category)) {
+      errors.push("Categoria inválida")
     }
 
     const existingProduct = await this.productRepository.findByNameAndCategory(data.name!, data.category!)
@@ -26,13 +58,40 @@ export class ProductServices {
     return errors
   }
 
+  private async validateUpdatedData(updatedData: Partial<IProduct>, currentCategory: CategoryCode): Promise<Partial<IProduct>> {
+    const validatedData: Partial<IProduct> = {}
+
+    if (updatedData.category) {
+      validatedData.category = this.validateCategory(updatedData.category)
+    }
+
+    if (updatedData.name) {
+      await this.validateProductName(updatedData.name, validatedData.category as CategoryCode || currentCategory)
+      validatedData.name = updatedData.name
+    }
+
+    if (updatedData.price !== undefined) {
+      this.validateProductPrice(updatedData.price)
+      validatedData.price = updatedData.price
+    }
+
+    return validatedData
+  }
+
   async createProduct(product: IProduct): Promise<IProduct> {
     const errors = await this.validateProductData(product)
     if (errors.length > 0) {
-      throw new Error(errors.join(", "))
+      throw new Error(errors.join(". "))
     }
 
-    const products = await this.productRepository.create(product)
+    const validatedCategory = this.validateCategory(product.category)
+
+    const validatedProduct = {
+      ...product,
+      category: validatedCategory
+    }
+
+    const products = await this.productRepository.create(validatedProduct)
 
     return products
   }
@@ -42,50 +101,39 @@ export class ProductServices {
   }
 
   async findAllProducts(page: number, limit: number) {
-    const offset = (page - 1) * limit;
-    const {products, total} = await this.productRepository.findAll(limit, offset);
+    const offset = (page - 1) * limit
+    const { products, total } = await this.productRepository.findAll(limit, offset)
 
-    return { products, total };
+    return { products, total }
   }
 
 
-  async findProductsByCategory(category: string) {
-    return await this.productRepository.findByCategory(category);
+  async findProductsByCategory(category: string, page: number, limit: number) {
+    const offset = (page - 1) * limit
+    return await this.productRepository.findByCategory(category, limit, offset)
   }
 
-  async findProductsById(id: string) {
+  async findProductById(id: string) {
     return await this.productRepository.findById(id)
   }
 
-  async findProductsByName(name: string) {
-    return await this.productRepository.findByName(name)
+  async findProductsByName(name: string, page: number, limit: number) {
+    const offset = (page - 1) * limit
+    return await this.productRepository.findByName(name, limit, offset)
   }
 
-  async updateProduct(product: IProduct): Promise<IProduct | null> {
-    const { id, name, description, category, price } = product;
-    let fieldNames = []
-    let fields = []
+  async updateExistingProduct(productId: string, updatedProductData: Partial<IProduct>): Promise<IProduct | null> {
+    const existingProduct = await this.findProductById(productId)
+    if (!existingProduct) {
+      throw new Error("Product not found")
+    }
+    const validatedData = await this.validateUpdatedData(updatedProductData, existingProduct.category as CategoryCode)
 
-    if (name) {
-      fieldNames.push("name")
-      fields.push(name)
+    const updatedProduct = {
+      ...existingProduct,
+      ...validatedData,
     }
 
-    if (description) {
-      fieldNames.push("description")
-      fields.push(description)
-    }
-
-    if (category) {
-      fieldNames.push("category")
-      fields.push(category)
-    }
-
-    if (price) {
-      fieldNames.push("price")
-      fields.push(price)
-    }
-
-    return null;
+    return await this.productRepository.update(updatedProduct, productId)
   }
 }
