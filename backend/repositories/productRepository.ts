@@ -88,13 +88,15 @@ export class ProductRepository {
 		}
 	}
 
-	async findAll(): Promise<IProduct[]> {
+	async findAll(limit: number, offset: number) {
 		const query = `
 			SELECT * 
-			FROM products`
+			FROM products
+			LIMIT ${limit}
+			OFFSET ${offset}`
 
 		const res = await this.pool.query(query);
-		return res.rows;
+		return {products: res.rows, total: res.rows.length};
 	}
 
 	async update(fields: any[], fieldNames: string[], id: string): Promise<IProduct | null> {

@@ -41,9 +41,13 @@ export class ProductServices {
     return await this.productRepository.deleteById(id)
   }
 
-  async findAllProducts() {
-    return await this.productRepository.findAll()
+  async findAllProducts(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    const {products, total} = await this.productRepository.findAll(limit, offset);
+
+    return { products, total };
   }
+
 
   async findProductsByCategory(category: string) {
     return await this.productRepository.findByCategory(category);
