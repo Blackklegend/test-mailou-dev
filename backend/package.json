@@ -8,7 +8,8 @@
     "start": "export NODE_ENV='production' && node lib/index.js",
     "start_windows": "SET NODE_ENV=production&& node lib/index.js",
     "dev": "SET NODE_ENV=staging&& tsx watch index.ts",
-    "dev_unix": "export NODE_ENV='staging' && tsx src/index.ts"
+    "dev_unix": "export NODE_ENV='staging' && tsx src/index.ts",
+    "migrate": "node-pg-migrate -m ./db/migrations --tsx true"
   },
   "license": "MIT",
   "private": true,
@@ -24,7 +25,7 @@
     "@types/node": "^22.8.6",
     "@types/pg": "^8.11.10",
     "@types/uuid": "^10.0.0",
+    "node-pg-migrate": "^7.7.1",
     "nodemon": "^3.1.7"
-  },
-  "type": "module"
+  }
 }
