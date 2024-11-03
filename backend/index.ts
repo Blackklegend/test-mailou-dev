@@ -1,24 +1,34 @@
-import { configDotenv } from 'dotenv'
-import Fastify, { FastifyReply, FastifyRequest } from 'fastify'
-import { productRouter } from './router/productRouter'
+import {config} from "dotenv"
+import Fastify, {FastifyInstance} from "fastify"
+import {productRouter} from "./router/product-router"
 
-configDotenv({path: "./.env"})
+config({path: "./.env"})
 
-async function startServer() {
-	const app = Fastify({ logger: true })
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
 
-	app.get('/', (req: FastifyRequest, res: FastifyReply) => {
-			res.send("Hello world")
-	})
+async function startServer(): Promise<void> {
+	const app: FastifyInstance = Fastify({logger: true})
 
-	app.register(productRouter)
-
-	app.listen({port: 3000}, (err, address) => {
-		if (err) {
-			app.log.error(err)
-			process.exit(1)
-		}
-	})
+	await registerRoutes(app)
+	await startListening(app)
 }
 
-startServer()
+async function registerRoutes(app: FastifyInstance): Promise<void> {
+	app.get("/", async () => "Hello world")
+	await app.register(productRouter)
+}
+
+async function startListening(app: FastifyInstance): Promise<void> {
+	try {
+		await app.listen({port: PORT})
+		console.log(`Server is running on port ${PORT}`)
+	} catch (err) {
+		app.log.error(err)
+		process.exit(1)
+	}
+}
+
+startServer().catch((err) => {
+	console.error("Failed to start server:", err)
+	process.exit(1)
+})
