@@ -56,7 +56,8 @@ export class ProductRepository {
 
 		try {
 			const res = await this.pool.query(query, params)
-			return { products: res.rows, total: res.rows.length > 0 ? res.rows[0].full_count : 0 }
+			const products = res.rows.map(({ full_count, ...product }) => product)
+			return { products, total: res.rows.length > 0 ? res.rows[0].full_count : 0 }
 		} catch (error) {
 			console.error('Error finding products by category:', error)
 			throw new Error('Failed to retrieve products by category')
@@ -77,7 +78,8 @@ export class ProductRepository {
 
 		try {
 			const res = await this.pool.query(query, params)
-			return { products: res.rows, total: res.rows.length > 0 ? res.rows[0].full_count : 0 }
+			const products = res.rows.map(({ full_count, ...product }) => product)
+			return { products, total: res.rows.length > 0 ? res.rows[0].full_count : 0 }
 		} catch (error) {
 			console.error('Error finding products by name:', error)
 			throw new Error('Failed to retrieve products by name')
@@ -113,7 +115,8 @@ export class ProductRepository {
 			OFFSET $2`
 
 		const res = await this.pool.query(query, [limit, offset])
-		return { products: res.rows, total: res.rows.length > 0 ? res.rows[0].full_count : 0 }
+		const products = res.rows.map(({ full_count, ...product }) => product)
+		return { products, total: res.rows.length > 0 ? res.rows[0].full_count : 0 }
 	}
 
 	async update(product: IProduct, id: string): Promise<IProduct | null> {

@@ -30,6 +30,10 @@ export class ProductController {
     const pageNumber = parseInt(page)
     const limitNumber = parseInt(limit)
 
+    if (limitNumber > 500) {
+      return reply.code(400).send({ error: "Não é permitido mais que 500 items por página" })
+    }
+
     const { products, total } = await this.productService.findAllProducts(pageNumber, limitNumber)
 
     reply.send({
@@ -64,6 +68,10 @@ export class ProductController {
       const pageNumber = parseInt(page)
       const limitNumber = parseInt(limit)
 
+      if (limitNumber > 500) {
+        return reply.code(400).send({ error: "Não é permitido mais que 500 items por página" })
+      }
+
       const { products, total } = await this.productService.findProductsByName(name, pageNumber, limitNumber)
 
       reply.send({
@@ -80,29 +88,33 @@ export class ProductController {
   //GET /products/category/:category
   async getByCategory(req: FastifyRequest, reply: FastifyReply) {
     try {
-      const { category } = req.params as { category: string };
-      const { page = '1', limit = '10' } = req.query as { page?: string, limit?: string };
-      const pageNumber = parseInt(page);
-      const limitNumber = parseInt(limit);
+      const { category } = req.params as { category: string }
+      const { page = '1', limit = '10' } = req.query as { page?: string, limit?: string }
+      const pageNumber = parseInt(page)
+      const limitNumber = parseInt(limit)
 
-      let categoryCode = category;
+      if (limitNumber > 500) {
+        return reply.code(400).send({ error: "Não é permitido mais que 500 items por página" })
+      }
+
+      let categoryCode = category.toUpperCase()
       if (category.length > 1) {
-        categoryCode = String(validateCategory(category));
+        categoryCode = String(validateCategory(category))
         if (!categoryCode) {
-          return reply.code(400).send({ error: "Invalid category" });
+          return reply.code(400).send({ error: "Invalid category" })
         }
       }
 
-      const { products, total } = await this.productService.findProductsByCategory(categoryCode, pageNumber, limitNumber);
+      const { products, total } = await this.productService.findProductsByCategory(categoryCode, pageNumber, limitNumber)
 
       reply.send({
         products,
         currentPage: pageNumber,
         totalPages: Math.ceil(total / limitNumber),
         totalItems: parseInt(total)
-      });
+      })
     } catch (error) {
-      reply.code(500).send({ error: "An unexpected error occurred" });
+      reply.code(500).send({ error: "An unexpected error occurred" })
     }
   }
 
