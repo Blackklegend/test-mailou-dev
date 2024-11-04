@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { addProduct, updateProduct } from '../services/api';
+import { updateProduct } from '../services/api';
 import FormField from './FormField';
 import CategorySelect from './CategorySelect';
-
-const initialProductState = { name: '', price: '', category: '', description: '' };
 
 function EditProductDialog({ isOpen, onClose, onProductUpdated, product }) {
   const [newProduct, setNewProduct] = useState(product);
@@ -37,7 +35,6 @@ function EditProductDialog({ isOpen, onClose, onProductUpdated, product }) {
       try {
         await updateProduct(newProduct);
         onProductUpdated();
-        setNewProduct(initialProductState);
         onClose();
       } catch (error) {
         console.error('Error updating product:', error);
@@ -73,7 +70,7 @@ function EditProductDialog({ isOpen, onClose, onProductUpdated, product }) {
               label="Descrição" 
               name="description"
               value={newProduct.description} o
-              nChange={handleInputChange} 
+              onChange={handleInputChange} 
               required={false} 
             />
             <CategorySelect 

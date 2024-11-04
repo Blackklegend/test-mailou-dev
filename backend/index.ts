@@ -5,7 +5,7 @@ import cors from "@fastify/cors"
 
 config({path: "./.env"})
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 9000
 
 async function startServer(): Promise<void> {
 	const app: FastifyInstance = Fastify({logger: true})

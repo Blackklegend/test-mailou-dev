@@ -3,7 +3,7 @@ import { deleteProduct, fetchProducts } from '../services/api';
 import AddProductDialog from './AddProductDialog';
 import Product from './Product';
 
-function ProductList({ onProductDeleted }) {
+function ProductList() {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -13,8 +13,10 @@ function ProductList({ onProductDeleted }) {
 
   const loadProducts = useCallback(async () => {
     await fetchProducts(currentPage, itemsPerPage).then(res => {
-      setProducts(res.products);
-      setTotalPages(res.totalPages);
+      if (!res.statusCode) {
+        setProducts(res.products);
+        setTotalPages(res.totalPages);
+      }
     }).catch(err => console.error("error loading products", err));
   }, [currentPage, itemsPerPage]);
 
@@ -25,7 +27,6 @@ function ProductList({ onProductDeleted }) {
   const handleDelete = async (id) => {
     await deleteProduct(id);
     loadProducts();
-    onProductDeleted();
   };
 
   const handlePageChange = (newPage) => {

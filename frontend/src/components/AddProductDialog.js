@@ -73,7 +73,7 @@ function AddProductDialog({ isOpen, onClose, onProductAdded }) {
               label="Descrição" 
               name="description"
               value={newProduct.description} o
-              nChange={handleInputChange} 
+              onChange={handleInputChange} 
               required={false} 
             />
             <CategorySelect 
