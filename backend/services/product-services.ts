@@ -58,6 +58,7 @@ export class ProductServices {
 		if (!existingProduct) {
 			throw new Error("Product not found")
 		}
+		updatedProductData.id = existingProduct.id
 		const validatedData = await this.validateUpdatedData(
 			updatedProductData,
 			existingProduct.category as CategoryCode,
@@ -78,12 +79,13 @@ export class ProductServices {
 	private async validateProductName(
 		name: string,
 		category: CategoryCode,
+		id: string
 	): Promise<void> {
 		const existingProduct = await this.productRepository.findByNameAndCategory(
 			name,
 			category,
 		)
-		if (existingProduct) {
+		if (existingProduct && !existingProduct.id.match(id)) {
 			throw new Error("Nome já cadastrado na categoria, impossível alterar")
 		}
 	}
@@ -170,10 +172,11 @@ export class ProductServices {
 			validatedData.category = this.validateCategory(updatedData.category)
 		}
 
-		if (updatedData.name) {
+		if (updatedData.name && updatedData.id) {
 			await this.validateProductName(
 				updatedData.name,
 				(validatedData.category as CategoryCode) || currentCategory,
+				updatedData.id
 			)
 			validatedData.name = updatedData.name
 		}
