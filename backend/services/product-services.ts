@@ -79,7 +79,7 @@ export class ProductServices {
 	private async validateProductName(
 		name: string,
 		category: CategoryCode,
-		id: string
+		id: string,
 	): Promise<void> {
 		const existingProduct = await this.productRepository.findByNameAndCategory(
 			name,
@@ -176,7 +176,7 @@ export class ProductServices {
 			await this.validateProductName(
 				updatedData.name,
 				(validatedData.category as CategoryCode) || currentCategory,
-				updatedData.id
+				updatedData.id,
 			)
 			validatedData.name = updatedData.name
 		}
