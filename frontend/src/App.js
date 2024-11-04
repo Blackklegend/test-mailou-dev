@@ -1,23 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import ProductList from './components/ProductList';
+import { fetchProducts } from './services/api';
+import './index.css';
 
 function App() {
+  const [products, setProducts] = useState([]);
+
+  const loadProducts = async () => {
+    const data = await fetchProducts();
+    setProducts(data.products);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          les goooo
-        </a>
-      </header>
+    <div className="container mx-auto p-4">
+      <ProductList products={products} onProductDeleted={loadProducts} />
     </div>
   );
 }
