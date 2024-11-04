@@ -1,3 +1,9 @@
+## Execução do código
+
+Para execução do código, basta abrir o arquivo start.bat (ou start.sh se linux) e depois abrir http://localhost:3000 no browser
+
+
+---
 # Teste | Desenvolvedor Fullstack 👨‍💻
 
 ### 🎯 Objetivo
